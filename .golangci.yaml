@@ -1,0 +1,26 @@
+run:
+  concurrency: 6
+  timeout: 1m
+  issues-exit-code: 1
+  tests: false
+  skip-dirs-use-default: true
+  skip-files:
+    - ".*\\.bad\\.go$"
+
+linters:
+  disable-all: true
+  enable:
+    - gofmt
+    - goimports
+    - govet
+    - gosimple
+    - errcheck
+    - deadcode
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/Fe4p3b/go-best-practices/lesson6/GB_best_go1/
+  gosimple:
+    checks: ["all"]
+  govet:
+    enable-all: true
