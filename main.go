@@ -87,7 +87,7 @@ func (r requester) Get(ctx context.Context, url string) (Page, error) {
 		}
 		return page, nil
 	}
-	return nil, nil
+	// unreachable: unreachable code (govet)
 }
 
 //Crawler - интерфейс (контракт) краулера
@@ -149,11 +149,11 @@ func (c *crawler) ChanResult() <-chan CrawlResult {
 }
 
 //Config - структура для конфигурации
-type Config struct {
+type Config struct { // fieldalignment: struct with 32 pointer bytes could be 8 (govet)
+	Url        string
 	MaxDepth   int
 	MaxResults int
 	MaxErrors  int
-	Url        string
 	Timeout    int //in seconds
 }
 
@@ -167,16 +167,15 @@ func main() {
 		Timeout:    10,
 	}
 	var cr Crawler
-	var r Requester
 
-	r = NewRequester(time.Duration(cfg.Timeout) * time.Second)
+	r := NewRequester(time.Duration(cfg.Timeout) * time.Second) // should merge variable declaration with assignment on next line (gosimple)
 	cr = NewCrawler(r)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go cr.Scan(ctx, cfg.Url, cfg.MaxDepth) //Запускаем краулер в отдельной рутине
 	go processResult(ctx, cancel, cr, cfg) //Обрабатываем результаты в отдельной рутине
 
-	sigCh := make(chan os.Signal)        //Создаем канал для приема сигналов
+	sigCh := make(chan os.Signal, 1)     // sigchanyzer: misuse of unbuffered os.Signal channel as argument to signal.Notify (govet)
 	signal.Notify(sigCh, syscall.SIGINT) //Подписываемся на сигнал SIGINT
 	for {
 		select {
